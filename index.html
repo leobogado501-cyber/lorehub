@@ -1,144 +1,50 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LoreHub - Oficial</title>
-    <style>
-        :root { --p: #6200ee; --f: #0a0a0a; --t: #161616; --oro: #ffd700; --fuego: #ff4500; }
-        
-        body { font-family: 'Segoe UI', sans-serif; background: var(--f); color: white; margin: 0; overflow-x: hidden; padding-bottom: 80px; }
-        
-        /* LOGIN */
-        #login { position: fixed; inset: 0; background: var(--f); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn-log { width: 80%; padding: 15px; margin: 10px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
-
-        /* HEADER */
-        header { background: var(--t); padding: 15px; text-align: center; border-bottom: 2px solid var(--p); sticky: top; }
-
-        /* MARCOS DE PERFIL */
-        .avatar-container { width: 80px; height: 80px; margin: auto; position: relative; border-radius: 50%; padding: 5px; }
-        .marco-oro { border: 4px solid var(--oro); box-shadow: 0 0 15px var(--oro); }
-        .marco-fuego { border: 4px solid var(--fuego); box-shadow: 0 0 15px var(--fuego); }
-        .avatar-img { width: 100%; height: 100%; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; }
-
-        /* SECCIONES */
-        .sec { display: none; padding: 15px; animation: fadeIn 0.3s; }
-        .activa { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* TARJETAS */
-        .card { background: var(--t); border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #333; }
-        .btn-comprar { background: var(--p); color: white; border: none; padding: 10px; border-radius: 10px; width: 100%; margin-top: 10px; font-weight: bold; }
-
-        /* NAVBAR CELULAR */
-        .nav { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #333; z-index: 1000; }
-        .item { background: none; border: none; color: #555; font-size: 10px; text-align: center; }
-        .item.active { color: var(--p); }
-        .item span { font-size: 24px; display: block; }
-    </style>
+    <meta charset="utf-8">
+    <title>LoreHub Online</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
-<body>
+<body style="background:#111; color:white; font-family:sans-serif; text-align:center;">
 
-<div id="login">
-    <h1 style="color:var(--p)">LoreHub</h1>
-    <p>Inicia sesión para continuar</p>
-    <button class="btn-log" style="background:white;" onclick="loguear('Google')">Continuar con Google</button>
-    <button class="btn-log" style="background:#333; color:white;" onclick="loguear('Invitado')">Entrar como Invitado</button>
-</div>
+    <h2>LoreHub - Chat Real</h2>
+    <div id="pantalla" style="height:300px; border:1px solid #6200ee; overflow-y:auto; background:#000; margin:20px; padding:10px; text-align:left;"></div>
+    
+    <input type="text" id="mensaje" placeholder="Escribí acá..." style="padding:10px; width:60%;">
+    <button onclick="enviar()" style="padding:10px; background:#6200ee; color:white; border:none;">Enviar</button>
 
-<header>
-    <h2 style="margin:0;">LoreHub</h2>
-    <div id="monedas-top" style="color:var(--oro); font-weight:bold;">💰 0 LoreCoins</div>
-</header>
+    <script>
+        // Esta es la conexión con TU Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbN6FjiEseA4RMohY1fcldDdl6qB2zalA",
+            authDomain: "lorehub-bb826.firebaseapp.com",
+            projectId: "lorehub-bb826",
+            storageBucket: "lorehub-bb826.firebasestorage.app",
+            messagingSenderId: "869041299496",
+            appId: "1:869041299496:web:64711cba1e6d32bfc151d"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-<div id="inicio" class="sec activa">
-    <h3>Muro de Historias</h3>
-    <div class="card">
-        <strong>@Admin</strong>
-        <p>¡Bienvenidos a la red oficial! Publica tu manga aquí.</p>
-    </div>
-</div>
-
-<div id="tienda" class="sec">
-    <h3>Tienda de Marcos</h3>
-    <div class="card">
-        <h4>✨ Marco de Oro</h4>
-        <p>Brilla en todos tus comentarios.</p>
-        <button class="btn-comprar" onclick="comprarMarco('oro', 500)">Comprar (500 Coins)</button>
-    </div>
-    <div class="card">
-        <h4>🔥 Marco de Fuego</h4>
-        <p>Solo para leyendas.</p>
-        <button class="btn-comprar" onclick="comprarMarco('fuego', 1000)">Comprar (1000 Coins)</button>
-    </div>
-    <button class="btn-comprar" style="background:var(--oro); color:black;" onclick="sumarMonedas()">+ Cargar Monedas (Simular Pago)</button>
-</div>
-
-<div id="perfil" class="sec">
-    <div class="avatar-container" id="mi-avatar-marco">
-        <div class="avatar-img">👤</div>
-    </div>
-    <h2 style="text-align:center;" id="nombre-usuario">Usuario</h2>
-    <p style="text-align:center; color:#888;">Nivel: Creador de Manga</p>
-</div>
-
-<nav class="nav">
-    <button class="item active" onclick="nav('inicio', this)"><span>🏠</span>Inicio</button>
-    <button class="item" onclick="nav('tienda', this)"><span>💎</span>Tienda</button>
-    <button class="item" onclick="nav('perfil', this)"><span>👤</span>Perfil</button>
-</nav>
-
-<script>
-    let coins = localStorage.getItem('coins') ? parseInt(localStorage.getItem('coins')) : 100;
-    let marco = localStorage.getItem('marco') || '';
-
-    function actualizarUI() {
-        document.getElementById('monedas-top').innerText = "💰 " + coins + " LoreCoins";
-        if(marco) {
-            document.getElementById('mi-avatar-marco').className = "avatar-container marco-" + marco;
+        // Función para enviar mensajes
+        function enviar() {
+            const txt = document.getElementById('mensaje').value;
+            if(txt != "") {
+                db.collection("mensajes").add({ texto: txt, hora: Date.now() });
+                document.getElementById('mensaje').value = "";
+            }
         }
-    }
 
-    function loguear(tipo) {
-        localStorage.setItem('user', tipo);
-        document.getElementById('nombre-usuario').innerText = tipo;
-        document.getElementById('login').style.display = 'none';
-        actualizarUI();
-    }
-
-    function nav(id, el) {
-        document.querySelectorAll('.sec').forEach(s => s.classList.remove('activa'));
-        document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
-        document.getElementById(id).classList.add('activa');
-        el.classList.add('active');
-    }
-
-    function sumarMonedas() {
-        coins += 500;
-        localStorage.setItem('coins', coins);
-        actualizarUI();
-        alert("¡Pago simulado con éxito! +500 Coins");
-    }
-
-    function comprarMarco(tipo, costo) {
-        if(coins >= costo) {
-            coins -= costo;
-            marco = tipo;
-            localStorage.setItem('coins', coins);
-            localStorage.setItem('marco', marco);
-            actualizarUI();
-            alert("¡Marco comprado y equipado!");
-        } else {
-            alert("No tienes suficientes LoreCoins");
-        }
-    }
-
-    // Si ya estaba logueado
-    if(localStorage.getItem('user')) {
-        loguear(localStorage.getItem('user'));
-    }
-</script>
-
+        // Función para leer mensajes en vivo
+        db.collection("mensajes").orderBy("hora").onSnapshot((puntos) => {
+            const pantalla = document.getElementById('pantalla');
+            pantalla.innerHTML = "";
+            puntos.forEach((doc) => {
+                pantalla.innerHTML += `<p><b>Usuario:</b> ${doc.data().texto}</p>`;
+            });
+            pantalla.scrollTop = pantalla.scrollHeight;
+        });
+    </script>
 </body>
 </html>
